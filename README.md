@@ -2,6 +2,10 @@
 
 Small version in python of the .NET simple shopping cart I have somewhere around here.
 
+First of all, create the DB in the engine with these commands:
+DROP DATABASE shopping_cart
+CREATE DATABASE shopping_cart
+
 The .env file should be set in the root folder and it should include the Database URL and its credentials. Naturally it should look something like this:
 DB_HOST=localhost
 DB_PORT=3306
