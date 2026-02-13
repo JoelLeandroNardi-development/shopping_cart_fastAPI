@@ -1,16 +1,14 @@
 from pydantic import BaseModel, Field
 
-class CatalogItemCreate(BaseModel):
+class CatalogCreate(BaseModel):
     name: str = Field(..., min_length=1)
     price: float = Field(..., gt=0)
 
-class CatalogItemUpdate(BaseModel):
+class CatalogUpdate(BaseModel):
     name: str = Field(..., min_length=1)
     price: float = Field(..., gt=0)
 
-class CatalogItemResponse(BaseModel):
+class CatalogResponse(BaseModel):
     id: int
     name: str
     price: float
-    class Config:
-        from_attributes = True

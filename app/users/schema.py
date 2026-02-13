@@ -12,5 +12,3 @@ class UserResponse(BaseModel):
     id: int
     name: str
     phone_number: str
-    class Config:
-        from_attributes = True

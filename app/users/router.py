@@ -12,9 +12,13 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def create(data: UserCreate, db: Session = Depends(get_db)):
     return UserService(db).create(data.name, data.phone_number)
 
+@router.get("/{user_id}", response_model=UserResponse)
+def get(user_id: int, db: Session = Depends(get_db)):
+    return UserService(db).get(user_id)
+
 @router.get("/", response_model=List[UserResponse])
 def list_all(db: Session = Depends(get_db)):
-    return UserService(db).get_all()
+    return UserService(db).list()
 
 @router.put("/{user_id}", response_model=UserResponse)
 def update(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):

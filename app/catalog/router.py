@@ -3,25 +3,25 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.core.database import get_db
-from .schema import (
-    CatalogItemCreate,
-    CatalogItemUpdate,
-    CatalogItemResponse,
-)
+from .schema import CatalogCreate, CatalogUpdate, CatalogResponse
 from .service import CatalogService
 
 router = APIRouter(prefix="/catalog", tags=["Catalog"])
 
-@router.post("/", response_model=CatalogItemResponse)
-def create(data: CatalogItemCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=CatalogResponse)
+def create(data: CatalogCreate, db: Session = Depends(get_db)):
     return CatalogService(db).create(data.name, data.price)
 
-@router.get("/", response_model=List[CatalogItemResponse])
-def list_all(db: Session = Depends(get_db)):
-    return CatalogService(db).get_all()
+@router.get("/{item_id}", response_model=CatalogResponse)
+def get(item_id: int, db: Session = Depends(get_db)):
+    return CatalogService(db).get(item_id)
 
-@router.put("/{item_id}", response_model=CatalogItemResponse)
-def update(item_id: int, data: CatalogItemUpdate, db: Session = Depends(get_db)):
+@router.get("/", response_model=List[CatalogResponse])
+def list_all(db: Session = Depends(get_db)):
+    return CatalogService(db).list()
+
+@router.put("/{item_id}", response_model=CatalogResponse)
+def update(item_id: int, data: CatalogUpdate, db: Session = Depends(get_db)):
     return CatalogService(db).update(item_id, data.name, data.price)
 
 @router.delete("/{item_id}")

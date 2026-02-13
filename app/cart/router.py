@@ -1,22 +1,30 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from typing import List
+
 from app.core.database import get_db
-from .schema import CartItemCreate, CartResponse
+from .schema import CartCreate, CartUpdate, CartResponse
 from .service import CartService
 
-router = APIRouter(prefix="/cart", tags=["Cart"])
+router = APIRouter(prefix="/carts", tags=["Carts"])
 
-@router.post("/{user_id}", response_model=CartResponse)
-def create_cart(user_id: int, db: Session = Depends(get_db)):
-    service = CartService(db)
-    return service.create_cart(user_id)
-
-@router.post("/{cart_id}/items")
-def add_item(cart_id: int, data: CartItemCreate, db: Session = Depends(get_db)):
-    service = CartService(db)
-    return service.add_item(cart_id, data.catalog_item_id, data.quantity)
+@router.post("/", response_model=CartResponse)
+def create(data: CartCreate, db: Session = Depends(get_db)):
+    return CartService(db).create(data.user_id, data.items)
 
 @router.get("/{cart_id}", response_model=CartResponse)
-def get_cart(cart_id: int, db: Session = Depends(get_db)):
-    service = CartService(db)
-    return service.get_cart(cart_id)
+def get(cart_id: int, db: Session = Depends(get_db)):
+    return CartService(db).get(cart_id)
+
+@router.get("/", response_model=List[CartResponse])
+def list_all(db: Session = Depends(get_db)):
+    return CartService(db).list()
+
+@router.put("/{cart_id}", response_model=CartResponse)
+def update(cart_id: int, data: CartUpdate, db: Session = Depends(get_db)):
+    return CartService(db).update(cart_id, data.items)
+
+@router.delete("/{cart_id}")
+def delete(cart_id: int, db: Session = Depends(get_db)):
+    CartService(db).delete(cart_id)
+    return {"message": "Deleted successfully"}

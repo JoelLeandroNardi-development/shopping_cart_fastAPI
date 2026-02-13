@@ -1,15 +1,16 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from app.core.exceptions import NotFoundException
+
 
 def register_middleware(app):
     @app.middleware("http")
     async def exception_middleware(request: Request, call_next):
         try:
             return await call_next(request)
+        except NotFoundException as e:
+            return JSONResponse(status_code=404, content={"detail": e.message})
         except ValueError as e:
             return JSONResponse(status_code=400, content={"detail": str(e)})
         except Exception:
-            return JSONResponse(
-                status_code=500,
-                content={"detail": "Internal Server Error"},
-            )
+            return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
