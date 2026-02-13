@@ -2,7 +2,6 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.core.exceptions import NotFoundException
 
-
 def register_middleware(app):
     @app.middleware("http")
     async def exception_middleware(request: Request, call_next):
