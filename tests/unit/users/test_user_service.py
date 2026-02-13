@@ -4,57 +4,8 @@ from app.users.service import UserService
 from app.core.exceptions import NotFoundException
 from app.users.dto import UserDTO
 
-class FakeUser:
-    def __init__(self, name: str = None, phone_number: str = None):
-        self.id = None
-        self.name = name
-        self.phone_number = phone_number
-
-    def update(self, name: str, phone_number: str):
-        if not name.strip():
-            raise ValueError("Name is required")
-        self.name = name
-        self.phone_number = phone_number
-
-class FakeQuery:
-    def __init__(self, storage):
-        self._storage = storage
-
-    def all(self):
-        return list(self._storage.values())
-
-class FakeSession:
-    def __init__(self):
-        self.added = []
-        self.committed = False
-        self.refreshed = []
-        self.storage = {}
-        self.next_id = 1
-        self.deleted = []
-
-    def add(self, obj):
-        self.added.append(obj)
-
-    def commit(self):
-        self.committed = True
-
-    def refresh(self, obj):
-        if getattr(obj, "id", None) is None:
-            obj.id = self.next_id
-            self.next_id += 1
-        self.storage[obj.id] = obj
-        self.refreshed.append(obj)
-
-    def get(self, model, id_):
-        return self.storage.get(id_)
-
-    def query(self, model):
-        return FakeQuery(self.storage)
-
-    def delete(self, obj):
-        if getattr(obj, "id", None) in self.storage:
-            del self.storage[obj.id]
-            self.deleted.append(obj)
+from tests.helpers.fake_user import FakeUser
+from tests.helpers.fake_session import FakeSession
 
 def test_create_persists_and_returns_dto(monkeypatch):
     db = FakeSession()
@@ -91,9 +42,13 @@ def test_list_returns_all_users(monkeypatch):
     db = FakeSession()
     u1 = FakeUser("A", "1")
     u1.id = 1
+    if FakeUser.__name__ not in db.model_storage:
+        db.model_storage[FakeUser.__name__] = {}
+    db.model_storage[FakeUser.__name__][1] = u1
+    db.storage[1] = u1
     u2 = FakeUser("B", "2")
     u2.id = 2
-    db.storage[1] = u1
+    db.model_storage[FakeUser.__name__][2] = u2
     db.storage[2] = u2
     monkeypatch.setattr("app.users.service.User", FakeUser)
     svc = UserService(db)
